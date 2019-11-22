@@ -45,6 +45,7 @@ namespace Collectors.Controllers
 
             var collection = await _context.Collections
                 .Include(c => c.User)
+                .Include(c => c.Collectibles)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (collection == null)
             {
@@ -130,7 +131,7 @@ namespace Collectors.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", collection.UserId);
+            //ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", collection.UserId);
             return View(collection);
         }
 

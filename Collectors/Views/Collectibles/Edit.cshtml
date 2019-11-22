@@ -1,4 +1,4 @@
-﻿@model Collectors.Models.Collectible
+﻿@model Collectors.Models.CollectibleEditViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,26 +12,26 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Collectible.Id" />
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="Collectible.Name" class="control-label"></label>
+                <input asp-for="Collectible.Name" class="form-control" />
+                <span asp-validation-for="Collectible.Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="Collectible.Description" class="control-label"></label>
+                <input asp-for="Collectible.Description" class="form-control" />
+                <span asp-validation-for="Collectible.Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CollectedDate" class="control-label"></label>
-                <input asp-for="CollectedDate" class="form-control" />
-                <span asp-validation-for="CollectedDate" class="text-danger"></span>
+                <label asp-for="Collectible.CollectedDate" class="control-label"></label>
+                <input asp-for="Collectible.CollectedDate" class="form-control" />
+                <span asp-validation-for="Collectible.CollectedDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CollectionId" class="control-label"></label>
-                <select asp-for="CollectionId" class="form-control" asp-items="ViewBag.CollectionId"></select>
-                <span asp-validation-for="CollectionId" class="text-danger"></span>
+                <label asp-for="Collectible.CollectionId" class="control-label"></label>
+                <select asp-for="Collectible.CollectionId" class="form-control" asp-items="@Model.CollectionOptions"></select>
+                <span asp-validation-for="Collectible.CollectionId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

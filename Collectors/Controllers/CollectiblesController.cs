@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Collectors.Data;
 using Collectors.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Collectors.Controllers
 {
+    [Authorize]
     public class CollectiblesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,7 +27,11 @@ namespace Collectors.Controllers
         // GET: Collectibles
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Collectibles.Include(c => c.Collection);
+            // The below code restricts the results to the current user
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var applicationDbContext = _context.Collectibles
+                                                .Include(c => c.Collection)
+                                                .Where(c => c.Collection.UserId == user.Id);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -68,6 +74,7 @@ namespace Collectors.Controllers
         {
             if (ModelState.IsValid)
             {
+                viewModel.Collectible.CollectedDate = DateTime.Now;
                 _context.Add(viewModel.Collectible);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -83,13 +90,16 @@ namespace Collectors.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var viewModel = new CollectibleCreateViewModel()
+            {
+                Collections = await _context.Collections.Where(c => c.UserId == user.Id).ToListAsync()
+            };
             var collectible = await _context.Collectibles.FindAsync(id);
             if (collectible == null)
             {
                 return NotFound();
             }
-            ViewData["CollectionId"] = new SelectList(_context.Collections, "Id", "Name", collectible.CollectionId);
             return View(collectible);
         }
 
@@ -98,9 +108,9 @@ namespace Collectors.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CollectedDate,CollectionId")] Collectible collectible)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CollectedDate,CollectionId")] CollectibleEditViewModel viewModel)
         {
-            if (id != collectible.Id)
+            if (id != viewModel.Collectible.Id)
             {
                 return NotFound();
             }
@@ -109,12 +119,13 @@ namespace Collectors.Controllers
             {
                 try
                 {
-                    _context.Update(collectible);
+                    var user = await _userManager.GetUserAsync(HttpContext.User);
+                    _context.Update(viewModel.Collectible);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CollectibleExists(collectible.Id))
+                    if (!CollectibleExists(viewModel.Collectible.Id))
                     {
                         return NotFound();
                     }
@@ -125,8 +136,8 @@ namespace Collectors.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CollectionId"] = new SelectList(_context.Collections, "Id", "Name", collectible.CollectionId);
-            return View(collectible);
+            //ViewData["CollectionId"] = new SelectList(_context.Collections, "Id", "Name", collectible.CollectionId);
+            return View(viewModel);
         }
 
         // GET: Collectibles/Delete/5
